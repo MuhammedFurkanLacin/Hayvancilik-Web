@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="stylesheet" href="homepage.css" />
+    <title>M.M.E HAYVANCILIK</title>
+  </head>
+  <body>
+    <header>
+      <div class="navbar">
+        <div class="logo">
+          <a href="#"><img src="logo.jpg" alt="logo" /></a>
+        </div>
+        <ul class="links">
+          <li>
+            <a href="http://mmehayvancilik.com/Homepage_Admin/inekler.html">İnekler</a>
+          </li>
+          <li>
+            <a href="http://mmehayvancilik.com/Homepage_Admin/Yemler.html">Yemler</a>
+          </li>
+          <li>
+            <a href="http://mmehayvancilik.com/Homepage_Admin/Asilar.html">Aşılar</a>
+          </li>
+          <li>
+            <a href="http://mmehayvancilik.com/Homepage_Admin/Veterinerler.html"
+              >Veterinerler</a
+            >
+          </li>
+          <li>
+            <a href="http://mmehayvancilik.com/Homepage_Admin/Tedarikciler.html"
+              >Tedarikçiler</a
+            >
+          </li>
+          <li>
+            <a
+              href="http://mmehayvancilik.com/Homepage_Admin/Hakkimda.html"
+              class="action_btn"
+              >Hakkımda</a
+            >
+          </li>
+          <li>
+            <a href="http://mmehayvancilik.com" class="action_btn"
+              >Çıkış Yap</a
+            >
+          </li>
+        </ul>
+
+        <div class="toggle_btn">
+          <i class="fa-solid fa-bars"></i>
+        </div>
+      </div>
+      <div class="dropdown_menu">
+        <ul>
+          <li>
+            <a href="http://mmehayvancilik.com/Website/Category_Admin/inekler.html">İnekler</a>
+          </li>
+          <li>
+            <a href="http://mmehayvancilik.com/Website/Category_Admin/Yemler.html">Yemler</a>
+          </li>
+          <li>
+            <a href="http://mmehayvancilik.com/Website/Category_Admin/Tedarikciler.html"
+              >Tedarikçiler</a
+            >
+          </li>
+          <li>
+            <a href="http://mmehayvancilik.com/Website/Category_Admin/Asilar.html">Aşılar</a>
+          </li>
+          <li>
+            <a href="http://mmehayvancilik.com/Website/Category_Admin/Veterinerler.html"
+              >Veterinerler</a
+            >
+          </li>
+          <li>
+            <a
+              href="http://mmehayvancilik.com/Website/Category_Admin/Hakkimda.html"
+              class="action_btn"
+              >Hakkımda</a
+            >
+          </li>
+          <li>
+            <a href="http://mmehayvancilik.com" class="action_btn"
+              >Çıkış Yap</a
+            >
+          </li>
+        </ul>
+      </div>
+    </header>
+
+    <main>
+      <section id="hero">
+        <h1>M.M.E HAYVANCILIK</h1>
+      </section>
+    </main>
+
+    <script>
+      const toggleBtn = document.querySelector(".toggle_btn");
+      const toggleBtnIcon = document.querySelector(".toggle_btn i");
+      const dropdownMenu = document.querySelector(".dropdown_menu");
+      const logoutBtn = document.querySelector(".action_btn");
+
+      toggleBtn.onclick = function () {
+        dropdownMenu.classList.toggle("open");
+        const isOpen = dropdownMenu.classList.contains("open");
+
+        toggleBtnIcon.classList = isOpen
+          ? "fa-solid fa-xmark"
+          : "fa-solid fa-bars";
+      };
+
+      // Çıkış yap butonuna tıklandığında onay kutusu göster
+      logoutBtn.onclick = function (event) {
+        event.preventDefault(); // Linkin varsayılan davranışını engelle
+        const confirmLogout = confirm(
+          "Çıkış yapmak istediğinize emin misiniz?"
+        );
+        if (confirmLogout) {
+          window.location.href = logoutBtn.getAttribute("href");
+        }
+      };
+    </script>
+  </body>
+</html>

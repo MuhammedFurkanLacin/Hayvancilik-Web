@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tedarikçi Tablosu</title>
+    <link rel="stylesheet" href="Tedarikciler.css" />
+  </head>
+  <body>
+    <h2>Tedarikçi Tablosu</h2>
+
+    <div class="form-container">
+      <input type="text" id="TedarikciID" placeholder="Tedarikci ID" />
+      <input type="text" id="TedarikciAdi" placeholder="Tedarikci Adi" />
+      <input type="text" id="IletisimKisisi" placeholder="Iletisim Kisisi" />
+      <input type="text" id="TelefonNumarasi" placeholder="Telefon Numarasi" />
+      <input type="text" id="EpostaAdresi" placeholder="Eposta Adresi" />
+      <input type="text" id="Adres" placeholder="Adres" />
+      <input type="text" id="Sehir" placeholder="Sehir" />
+      <input type="text" id="Ulke" placeholder="Ulke" />
+      <button class="button add-button" onclick="satirEkle()">
+        Satır Ekle
+      </button>
+    </div>
+
+    <table id="dynamicTable">
+      <thead>
+        <tr>
+          <th>Tedarikci ID</th>
+          <th>Tedarikci Adı</th>
+          <th>İletişim Kişisi</th>
+          <th>Telefon Numarası</th>
+          <th>Eposta Adresi</th>
+          <th>Adres</th>
+          <th>Şehir</th>
+          <th>Ülke</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        tabloVerileriniYukle();
+      });
+
+      function tabloVerileriniYukle() {
+        const tabloVerileri =
+          JSON.parse(localStorage.getItem("tedarikciTabloVerileri")) || [];
+        const tbody = document
+          .getElementById("dynamicTable")
+          .getElementsByTagName("tbody")[0];
+
+        tabloVerileri.forEach((satirVerisi) => {
+          const yeniSatir = tbody.insertRow();
+          yeniSatir.insertCell(0).textContent = satirVerisi.TedarikciID;
+          yeniSatir.insertCell(1).textContent = satirVerisi.TedarikciAdi;
+          yeniSatir.insertCell(2).textContent = satirVerisi.IletisimKisisi;
+          yeniSatir.insertCell(3).textContent = satirVerisi.TelefonNumarasi;
+          yeniSatir.insertCell(4).textContent = satirVerisi.EpostaAdresi;
+          yeniSatir.insertCell(5).textContent = satirVerisi.Adres;
+          yeniSatir.insertCell(6).textContent = satirVerisi.Sehir;
+          yeniSatir.insertCell(7).textContent = satirVerisi.Ulke;
+          yeniSatir.insertCell(8).innerHTML = `
+                <button class="button edit-button" onclick="satirDuzenle(this)">Düzenle</button>
+                <button class="button remove-button" onclick="satirSil(this)">Sil</button>
+            `;
+        });
+      }
+
+      function tabloVerileriniKaydet() {
+        const tbody = document
+          .getElementById("dynamicTable")
+          .getElementsByTagName("tbody")[0];
+        const satirlar = Array.from(tbody.rows);
+        const tabloVerileri = satirlar.map((satir) => {
+          return {
+            TedarikciID: satir.cells[0].textContent,
+            TedarikciAdi: satir.cells[1].textContent,
+            IletisimKisisi: satir.cells[2].textContent,
+            TelefonNumarasi: satir.cells[3].textContent,
+            EpostaAdresi: satir.cells[4].textContent,
+            Adres: satir.cells[5].textContent,
+            Sehir: satir.cells[6].textContent,
+            Ulke: satir.cells[7].textContent,
+          };
+        });
+        localStorage.setItem(
+          "tedarikciTabloVerileri",
+          JSON.stringify(tabloVerileri)
+        );
+      }
+
+      function satirEkle() {
+        const TedarikciIDInput = document.getElementById("TedarikciID");
+        const TedarikciAdiInput = document.getElementById("TedarikciAdi");
+        const IletisimKisisiInput = document.getElementById("IletisimKisisi");
+        const TelefonNumarasiInput = document.getElementById("TelefonNumarasi");
+        const EpostaAdresiInput = document.getElementById("EpostaAdresi");
+        const AdresInput = document.getElementById("Adres");
+        const SehirInput = document.getElementById("Sehir");
+        const UlkeInput = document.getElementById("Ulke");
+
+        const TedarikciID = TedarikciIDInput.value.trim();
+        const TedarikciAdi = TedarikciAdiInput.value.trim();
+        const IletisimKisisi = IletisimKisisiInput.value.trim();
+        const TelefonNumarasi = TelefonNumarasiInput.value.trim();
+        const EpostaAdresi = EpostaAdresiInput.value.trim();
+        const Adres = AdresInput.value.trim();
+        const Sehir = SehirInput.value.trim();
+        const Ulke = UlkeInput.value.trim();
+
+        if (
+          TedarikciID === "" ||
+          TedarikciAdi === "" ||
+          IletisimKisisi === "" ||
+          TelefonNumarasi === "" ||
+          EpostaAdresi === "" ||
+          Adres === "" ||
+          Sehir === "" ||
+          Ulke === ""
+        ) {
+          alert("Lütfen tüm alanları doldurun.");
+          return;
+        }
+
+        const tablo = document
+          .getElementById("dynamicTable")
+          .getElementsByTagName("tbody")[0];
+        const yeniSatir = tablo.insertRow();
+
+        yeniSatir.insertCell(0).textContent = TedarikciID;
+        yeniSatir.insertCell(1).textContent = TedarikciAdi;
+        yeniSatir.insertCell(2).textContent = IletisimKisisi;
+        yeniSatir.insertCell(3).textContent = TelefonNumarasi;
+        yeniSatir.insertCell(4).textContent = EpostaAdresi;
+        yeniSatir.insertCell(5).textContent = Adres;
+        yeniSatir.insertCell(6).textContent = Sehir;
+        yeniSatir.insertCell(7).textContent = Ulke;
+        yeniSatir.insertCell(8).innerHTML = `
+            <button class="button edit-button" onclick="satirDuzenle(this)">Düzenle</button>
+            <button class="button remove-button" onclick="satirSil(this)">Sil</button>
+        `;
+
+        TedarikciIDInput.value = "";
+        TedarikciAdiInput.value = "";
+        IletisimKisisiInput.value = "";
+        TelefonNumarasiInput.value = "";
+        EpostaAdresiInput.value = "";
+        AdresInput.value = "";
+        SehirInput.value = "";
+        UlkeInput.value = "";
+
+        tabloVerileriniKaydet();
+      }
+
+      function satirSil(buton) {
+        const satir = buton.parentNode.parentNode;
+        satir.parentNode.removeChild(satir);
+        tabloVerileriniKaydet();
+      }
+
+      function satirDuzenle(buton) {
+        const satir = buton.parentNode.parentNode;
+        const cells = satir.cells;
+        for (let i = 0; i < cells.length - 1; i++) {
+          const currentText = cells[i].textContent;
+          cells[i].innerHTML = `<input type="text" value="${currentText}"/>`;
+        }
+        buton.textContent = "Kaydet";
+        buton.onclick = function () {
+          satirGuncelle(buton);
+        };
+      }
+
+      function satirGuncelle(buton) {
+        const satir = buton.parentNode.parentNode;
+        const cells = satir.cells;
+        for (let i = 0; i < cells.length - 1; i++) {
+          const input = cells[i].querySelector("input");
+          cells[i].textContent = input.value.trim();
+        }
+        buton.textContent = "Düzenle";
+        buton.onclick = function () {
+          satirDuzenle(buton);
+        };
+        tabloVerileriniKaydet();
+      }
+    </script>
+  </body>
+</html>

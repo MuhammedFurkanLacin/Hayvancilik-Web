@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aşı Tablosu</title>
+    <link rel="stylesheet" href="Asilar.css" />
+  </head>
+  <body>
+    <h2>Aşı Tablosu</h2>
+
+    <div class="form-container">
+      <input type="text" id="asiId" placeholder="Aşı ID" />
+      <input type="text" id="asiAdi" placeholder="Aşı Adı" />
+      <input type="text" id="asiKodu" placeholder="Aşı Kodu" />
+      <input type="date" id="asiTarihi" placeholder="Aşı Tarihi" />
+      <input type="text" id="asiAciklama" placeholder="Aşı Açıklama" />
+      <button class="button add-button" onclick="satirEkle()">
+        Satır Ekle
+      </button>
+    </div>
+
+    <table id="dynamicTable">
+      <thead>
+        <tr>
+          <th>Aşı ID</th>
+          <th>Aşı Adı</th>
+          <th>Aşı Kodu</th>
+          <th>Aşı Tarihi</th>
+          <th>Aşı Açıklama</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        tabloVerileriniYukle();
+      });
+
+      function tabloVerileriniYukle() {
+        const tabloVerileri =
+          JSON.parse(localStorage.getItem("asiTabloVerileri")) || [];
+        const tbody = document
+          .getElementById("dynamicTable")
+          .getElementsByTagName("tbody")[0];
+
+        tabloVerileri.forEach((satirVerisi) => {
+          const yeniSatir = tbody.insertRow();
+          yeniSatir.insertCell(0).textContent = satirVerisi.asiId;
+          yeniSatir.insertCell(1).textContent = satirVerisi.asiAdi;
+          yeniSatir.insertCell(2).textContent = satirVerisi.asiKodu;
+          yeniSatir.insertCell(3).textContent = satirVerisi.asiTarihi;
+          yeniSatir.insertCell(4).textContent = satirVerisi.asiAciklama;
+          yeniSatir.insertCell(5).innerHTML = `
+            <button class="button edit-button" onclick="satirDuzenle(this)">Düzenle</button>
+            <button class="button remove-button" onclick="satirSil(this)">Sil</button>
+          `;
+        });
+      }
+
+      function tabloVerileriniKaydet() {
+        const tbody = document
+          .getElementById("dynamicTable")
+          .getElementsByTagName("tbody")[0];
+        const satirlar = Array.from(tbody.rows);
+        const tabloVerileri = satirlar.map((satir) => {
+          return {
+            asiId: satir.cells[0].textContent,
+            asiAdi: satir.cells[1].textContent,
+            asiKodu: satir.cells[2].textContent,
+            asiTarihi: satir.cells[3].textContent,
+            asiAciklama: satir.cells[4].textContent,
+          };
+        });
+        localStorage.setItem("asiTabloVerileri", JSON.stringify(tabloVerileri));
+      }
+
+      function satirEkle() {
+        const asiIdInput = document.getElementById("asiId");
+        const asiAdiInput = document.getElementById("asiAdi");
+        const asiKoduInput = document.getElementById("asiKodu");
+        const asiTarihiInput = document.getElementById("asiTarihi");
+        const asiAciklamaInput = document.getElementById("asiAciklama");
+
+        const asiId = asiIdInput.value.trim();
+        const asiAdi = asiAdiInput.value.trim();
+        const asiKodu = asiKoduInput.value.trim();
+        const asiTarihi = asiTarihiInput.value.trim();
+        const asiAciklama = asiAciklamaInput.value.trim();
+
+        if (
+          asiId === "" ||
+          asiAdi === "" ||
+          asiKodu === "" ||
+          asiTarihi === "" ||
+          asiAciklama === ""
+        ) {
+          alert("Lütfen tüm alanları doldurun.");
+          return;
+        }
+
+        const tablo = document
+          .getElementById("dynamicTable")
+          .getElementsByTagName("tbody")[0];
+        const yeniSatir = tablo.insertRow();
+
+        yeniSatir.insertCell(0).textContent = asiId;
+        yeniSatir.insertCell(1).textContent = asiAdi;
+        yeniSatir.insertCell(2).textContent = asiKodu;
+        yeniSatir.insertCell(3).textContent = asiTarihi;
+        yeniSatir.insertCell(4).textContent = asiAciklama;
+        yeniSatir.insertCell(5).innerHTML = `
+          <button class="button edit-button" onclick="satirDuzenle(this)">Düzenle</button>
+          <button class="button remove-button" onclick="satirSil(this)">Sil</button>
+        `;
+
+        asiIdInput.value = "";
+        asiAdiInput.value = "";
+        asiKoduInput.value = "";
+        asiTarihiInput.value = "";
+        asiAciklamaInput.value = "";
+
+        tabloVerileriniKaydet();
+      }
+
+      function satirSil(buton) {
+        const satir = buton.parentNode.parentNode;
+        satir.parentNode.removeChild(satir);
+        tabloVerileriniKaydet();
+      }
+
+      function satirDuzenle(buton) {
+        const satir = buton.parentNode.parentNode;
+        const cells = satir.cells;
+        for (let i = 0; i < cells.length - 1; i++) {
+          const currentText = cells[i].textContent;
+          cells[i].innerHTML = `<input type="text" value="${currentText}"/>`;
+        }
+        buton.textContent = "Kaydet";
+        buton.onclick = function () {
+          satirGuncelle(buton);
+        };
+      }
+
+      function satirGuncelle(buton) {
+        const satir = buton.parentNode.parentNode;
+        const cells = satir.cells;
+        for (let i = 0; i < cells.length - 1; i++) {
+          const input = cells[i].querySelector("input");
+          cells[i].textContent = input.value.trim();
+        }
+        buton.textContent = "Düzenle";
+        buton.onclick = function () {
+          satirDuzenle(buton);
+        };
+        tabloVerileriniKaydet();
+      }
+    </script>
+  </body>
+</html>

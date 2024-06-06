@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Yemler Tablosu</title>
+    <link rel="stylesheet" href="Yemler.css" />
+  </head>
+  <body>
+    <h2>Yem Tablosu</h2>
+
+    <div class="form-container">
+      <input type="text" id="yemId" placeholder="Yem ID" />
+      <input type="text" id="yemAdı" placeholder="Yem Adı" />
+      <input type="text" id="miktar" placeholder="Miktar" />
+      <input type="text" id="birim" placeholder="Birim" />
+      <input
+        type="date"
+        id="sonGüncellenmeTarihi"
+        placeholder="Son Güncellenme Tarihi"
+      />
+      <button class="button add-button" onclick="satirEkle()">
+        Satır Ekle
+      </button>
+    </div>
+
+    <table id="dynamicTable">
+      <thead>
+        <tr>
+          <th>Yem ID</th>
+          <th>Yem Adı</th>
+          <th>Miktar</th>
+          <th>Birim</th>
+          <th>Son Güncellenme Tarihi</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        tabloVerileriniYukle();
+      });
+
+      function tabloVerileriniYukle() {
+        const tabloVerileri =
+          JSON.parse(localStorage.getItem("yemTabloVerileri")) || [];
+        const tbody = document
+          .getElementById("dynamicTable")
+          .getElementsByTagName("tbody")[0];
+
+        tabloVerileri.forEach((satirVerisi) => {
+          const yeniSatir = tbody.insertRow();
+          yeniSatir.insertCell(0).textContent = satirVerisi.yemId;
+          yeniSatir.insertCell(1).textContent = satirVerisi.yemAdı;
+          yeniSatir.insertCell(2).textContent = satirVerisi.miktar;
+          yeniSatir.insertCell(3).textContent = satirVerisi.birim;
+          yeniSatir.insertCell(4).textContent =
+            satirVerisi.sonGüncellenmeTarihi;
+          yeniSatir.insertCell(
+            5
+          ).innerHTML = `<button class="button remove-button" onclick="satirSil(this)">Sil</button>`;
+          yeniSatir.insertCell(
+            6
+          ).innerHTML = `<button class="button edit-button" onclick="satirDuzenle(this)">Düzenle</button>`;
+        });
+      }
+
+      function tabloVerileriniKaydet() {
+        const tbody = document
+          .getElementById("dynamicTable")
+          .getElementsByTagName("tbody")[0];
+        const satirlar = Array.from(tbody.rows);
+        const tabloVerileri = satirlar.map((satir) => {
+          return {
+            yemId: satir.cells[0].textContent,
+            yemAdı: satir.cells[1].textContent,
+            miktar: satir.cells[2].textContent,
+            birim: satir.cells[3].textContent,
+            sonGüncellenmeTarihi: satir.cells[4].textContent,
+          };
+        });
+        localStorage.setItem("yemTabloVerileri", JSON.stringify(tabloVerileri));
+      }
+
+      function satirEkle() {
+        const yemIdInput = document.getElementById("yemId");
+        const yemAdıInput = document.getElementById("yemAdı");
+        const miktarInput = document.getElementById("miktar");
+        const birimInput = document.getElementById("birim");
+        const sonGüncellenmeTarihiInput = document.getElementById(
+          "sonGüncellenmeTarihi"
+        );
+
+        const yemId = yemIdInput.value.trim();
+        const yemAdı = yemAdıInput.value.trim();
+        const miktar = miktarInput.value.trim();
+        const birim = birimInput.value.trim();
+        const sonGüncellenmeTarihi = sonGüncellenmeTarihiInput.value.trim();
+
+        if (
+          yemId === "" ||
+          yemAdı === "" ||
+          miktar === "" ||
+          birim === "" ||
+          sonGüncellenmeTarihi === ""
+        ) {
+          alert("Lütfen tüm alanları doldurun.");
+          return;
+        }
+
+        const tablo = document
+          .getElementById("dynamicTable")
+          .getElementsByTagName("tbody")[0];
+        const yeniSatir = tablo.insertRow();
+
+        yeniSatir.insertCell(0).textContent = yemId;
+        yeniSatir.insertCell(1).textContent = yemAdı;
+        yeniSatir.insertCell(2).textContent = miktar;
+        yeniSatir.insertCell(3).textContent = birim;
+        yeniSatir.insertCell(4).textContent = sonGüncellenmeTarihi;
+        yeniSatir.insertCell(
+          5
+        ).innerHTML = `<button class="button remove-button" onclick="satirSil(this)">Sil</button>`;
+        yeniSatir.insertCell(
+          6
+        ).innerHTML = `<button class="button edit-button" onclick="satirDuzenle(this)">Düzenle</button>`;
+
+        yemIdInput.value = "";
+        yemAdıInput.value = "";
+        miktarInput.value = "";
+        birimInput.value = "";
+        sonGüncellenmeTarihiInput.value = "";
+
+        tabloVerileriniKaydet();
+      }
+
+      function satirSil(buton) {
+        const satir = buton.parentNode.parentNode;
+        satir.parentNode.removeChild(satir);
+        tabloVerileriniKaydet();
+      }
+
+      function satirDuzenle(buton) {
+        const satir = buton.parentNode.parentNode;
+        const cells = satir.cells;
+        for (let i = 0; i < cells.length - 2; i++) {
+          const currentText = cells[i].textContent;
+          cells[i].innerHTML = `<input type="text" value="${currentText}" />`;
+        }
+        const duzenleButton = satir.querySelector(".edit-button");
+        duzenleButton.textContent = "Kaydet";
+        duzenleButton.onclick = function () {
+          satirGuncelle(duzenleButton);
+        };
+      }
+
+      function satirGuncelle(buton) {
+        const satir = buton.parentNode.parentNode;
+        const cells = satir.cells;
+        for (let i = 0; i < cells.length - 2; i++) {
+          const input = cells[i].querySelector("input");
+          cells[i].textContent = input.value.trim();
+        }
+        const duzenleButton = satir.querySelector(".edit-button");
+        duzenleButton.textContent = "Düzenle";
+        duzenleButton.onclick = function () {
+          satirDuzenle(duzenleButton);
+        };
+        tabloVerileriniKaydet();
+      }
+    </script>
+  </body>
+</html>

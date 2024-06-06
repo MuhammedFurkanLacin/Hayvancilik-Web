@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>İnekler Tablosu</title>
+    <link rel="stylesheet" href="Veterinerler.css" />
+  </head>
+  <body>
+    <h2>Veteriner Tablosu</h2>
+
+    <div class="form-container">
+      <input type="text" id="VeterinerID" placeholder="Veteriner ID" />
+      <input type="text" id="Ad" placeholder="Ad" />
+      <input type="text" id="Soyad" placeholder="Soyad" />
+      <input type="text" id="UzmanlikAlani" placeholder="Uzmanlık Alanı" />
+      <input type="text" id="Telefon	" placeholder="Telefon" />
+      <button class="button add-button" onclick="satirEkle()">
+        Satır Ekle
+      </button>
+    </div>
+
+    <table id="dynamicTable">
+      <thead>
+        <tr>
+          <th>Veteriner ID</th>
+          <th>Ad</th>
+          <th>Soyad</th>
+          <th>Uzmanlık Alanı</th>
+          <th>Telefon</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <script>
+        
+      function satirEkle() {
+        const VeterinerIDInput = document.getElementById("VeterinerID");
+        const AdInput = document.getElementById("Ad");
+        const SoyadInput = document.getElementById("Soyad");
+        const UzmanlikAlaniInput = document.getElementById("UzmanlikAlani");
+        const TelefonInput = document.getElementById("Telefon");
+
+        const VeterinerID = VeterinerIDInput.value.trim();
+        const Ad = AdInput.value.trim();
+        const Soyad = SoyadInput.value.trim();
+        const UzmanlikAlani = UzmanlikAlaniInput.value.trim();
+        const Telefon = TelefonInput.value.trim();
+
+        if (
+          VeterinerID === "" ||
+          Ad === "" ||
+          Soyad === "" ||
+          UzmanlikAlani === "" ||
+          Telefon === ""
+        ) {
+          alert("Lütfen tüm alanları doldurun.");
+          return;
+        }
+
+        const tablo = document
+          .getElementById("dynamicTable")
+          .getElementsByTagName("tbody")[0];
+        const yeniSatir = tablo.insertRow();
+
+        yeniSatir.insertCell(0).textContent = VeterinerID;
+        yeniSatir.insertCell(1).textContent = Ad;
+        yeniSatir.insertCell(2).textContent = Soyad;
+        yeniSatir.insertCell(3).textContent = UzmanlikAlani;
+        yeniSatir.insertCell(3).textContent = Telefon;
+        yeniSatir.insertCell(
+          7
+        ).innerHTML = `<button class="button remove-button" onclick="satirSil(this)">Sil</button>`;
+
+        VeterinerIDInput.value = "";
+        AdInput.value = "";
+        SoyadInput.value = "";
+        UzmanlikAlaniInput.value = "";
+        TelefonInput.value = "";
+      }
+
+      function satirSil(buton) {
+        const satir = buton.parentNode.parentNode;
+        satir.parentNode.removeChild(satir);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>İnekler Tablosu</title>
+    <link rel="stylesheet" href="inekler.css" />
+    <style>
+      .message-box {
+        display: none;
+        padding: 10px;
+        margin: 10px 0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      .message-box.success {
+        background-color: #dff0d8;
+        border-color: #d6e9c6;
+        color: #3c763d;
+      }
+      .message-box.error {
+        background-color: #f2dede;
+        border-color: #ebccd1;
+        color: #a94442;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>İnekler Tablosu</h2>
+
+    <div class="form-container">
+      <input type="text" id="hayvanId" placeholder="Hayvan ID" />
+      <input type="text" id="inekTürü" placeholder="İnek Türü" />
+      <input type="text" id="cins" placeholder="Cins" />
+      <input type="date" id="dogumTarihi" placeholder="Doğum Tarihi" />
+      <input type="text" id="cinsiyet" placeholder="Cinsiyet" />
+      <input type="text" id="resimUrl" placeholder="Resim URL" />
+      <button class="button add-button" onclick="satirEkle()">
+        Satır Ekle
+      </button>
+    </div>
+
+    <div id="messageBox" class="message-box"></div>
+
+    <table id="dynamicTable">
+      <thead>
+        <tr>
+          <th>Hayvan ID</th>
+          <th>İnek Türü</th>
+          <th>Cins</th>
+          <th>Doğum Tarihi</th>
+          <th>Cinsiyet</th>
+          <th>Resim</th>
+          <th>İşlemler</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        tabloVerileriniYukle();
+      });
+
+      function tabloVerileriniYukle() {
+        const tabloVerileri =
+          JSON.parse(localStorage.getItem("tabloVerileri")) || [];
+        const tbody = document
+          .getElementById("dynamicTable")
+          .getElementsByTagName("tbody")[0];
+
+        tabloVerileri.forEach((satirVerisi) => {
+          const yeniSatir = tbody.insertRow();
+          yeniSatir.insertCell(0).textContent = satirVerisi.hayvanId;
+          yeniSatir.insertCell(1).textContent = satirVerisi.inekTürü;
+          yeniSatir.insertCell(2).textContent = satirVerisi.cins;
+          yeniSatir.insertCell(3).textContent = satirVerisi.dogumTarihi;
+          yeniSatir.insertCell(4).textContent = satirVerisi.cinsiyet;
+          yeniSatir.insertCell(5).innerHTML = `<img src="${satirVerisi.resimUrl}" alt="İnek Resmi" width="50" height="50" />`;
+          yeniSatir.insertCell(6).innerHTML = `
+            <button class="button edit-button" onclick="satirDuzenle(this)">Düzenle</button>
+            <button class="button remove-button" onclick="satirSil(this)">Sil</button>
+          `;
+        });
+      }
+
+      function tabloVerileriniKaydet() {
+        const tbody = document
+          .getElementById("dynamicTable")
+          .getElementsByTagName("tbody")[0];
+        const satirlar = Array.from(tbody.rows);
+        const tabloVerileri = satirlar.map((satir) => {
+          return {
+            hayvanId: satir.cells[0].textContent,
+            inekTürü: satir.cells[1].textContent,
+            cins: satir.cells[2].textContent,
+            dogumTarihi: satir.cells[3].textContent,
+            cinsiyet: satir.cells[4].textContent,
+            resimUrl: satir.cells[5].querySelector("img").src,
+          };
+        });
+        localStorage.setItem("tabloVerileri", JSON.stringify(tabloVerileri));
+      }
+
+      function showMessage(message, type) {
+        const messageBox = document.getElementById("messageBox");
+        messageBox.textContent = message;
+        messageBox.className = `message-box ${type}`;
+        messageBox.style.display = "block";
+        setTimeout(() => {
+          messageBox.style.display = "none";
+        }, 3000);
+      }
+
+      function satirEkle() {
+        const hayvanIdInput = document.getElementById("hayvanId");
+        const inekTürüInput = document.getElementById("inekTürü");
+        const cinsInput = document.getElementById("cins");
+        const dogumTarihiInput = document.getElementById("dogumTarihi");
+        const cinsiyetInput = document.getElementById("cinsiyet");
+        const resimUrlInput = document.getElementById("resimUrl");
+
+        const hayvanId = hayvanIdInput.value.trim();
+        const inekTürü = inekTürüInput.value.trim();
+        const cins = cinsInput.value.trim();
+        const dogumTarihi = dogumTarihiInput.value.trim();
+        const cinsiyet = cinsiyetInput.value.trim();
+        const resimUrl = resimUrlInput.value.trim();
+
+        if (
+          hayvanId === "" ||
+          inekTürü === "" ||
+          cins === "" ||
+          dogumTarihi === "" ||
+          cinsiyet === "" ||
+          resimUrl === ""
+        ) {
+          showMessage("Lütfen tüm alanları doldurun.", "error");
+          return;
+        }
+
+        const tablo = document
+          .getElementById("dynamicTable")
+          .getElementsByTagName("tbody")[0];
+        const yeniSatir = tablo.insertRow();
+
+        yeniSatir.insertCell(0).textContent = hayvanId;
+        yeniSatir.insertCell(1).textContent = inekTürü;
+        yeniSatir.insertCell(2).textContent = cins;
+        yeniSatir.insertCell(3).textContent = dogumTarihi;
+        yeniSatir.insertCell(4).textContent = cinsiyet;
+        yeniSatir.insertCell(5).innerHTML = `<img src="${resimUrl}" alt="İnek Resmi" width="50" height="50" />`;
+        yeniSatir.insertCell(6).innerHTML = `
+          <button class="button edit-button" onclick="satirDuzenle(this)">Düzenle</button>
+          <button class="button remove-button" onclick="satirSil(this)">Sil</button>
+        `;
+
+        hayvanIdInput.value = "";
+        inekTürüInput.value = "";
+        cinsInput.value = "";
+        dogumTarihiInput.value = "";
+        cinsiyetInput.value = "";
+        resimUrlInput.value = "";
+
+        tabloVerileriniKaydet();
+        showMessage("Satır başarıyla eklendi!", "success");
+      }
+
+      function satirSil(buton) {
+        if (confirm("Bu satırı silmek istediğinizden emin misiniz?")) {
+          const satir = buton.parentNode.parentNode;
+          satir.parentNode.removeChild(satir);
+          tabloVerileriniKaydet();
+          showMessage("Satır başarıyla silindi!", "success");
+        }
+      }
+
+      function satirDuzenle(buton) {
+        const satir = buton.parentNode.parentNode;
+        const cells = satir.cells;
+        for (let i = 0; i < cells.length - 2; i++) {
+          const currentText = cells[i].textContent;
+          cells[i].innerHTML = `<input type="text" value="${currentText}"/>`;
+        }
+        const currentImgUrl = cells[5].querySelector("img").src;
+        cells[5].innerHTML = `<input type="text" value="${currentImgUrl}"/>`;
+
+        buton.textContent = "Kaydet";
+        buton.onclick = function () {
+          satirGuncelle(buton);
+        };
+      }
+
+      function satirGuncelle(buton) {
+        const satir = buton.parentNode.parentNode;
+        const cells = satir.cells;
+        for (let i = 0; i < cells.length - 2; i++) {
+          const input = cells[i].querySelector("input");
+          cells[i].textContent = input.value.trim();
+        }
+        const imgInput = cells[5].querySelector("input");
+        cells[5].innerHTML = `<img src="${imgInput.value.trim()}" alt="İnek Resmi" width="50" height="50" />`;
+
+        buton.textContent = "Düzenle";
+        buton.onclick = function () {
+          satirDuzenle(buton);
+        };
+        tabloVerileriniKaydet();
+        showMessage("Satır başarıyla güncellendi!", "success");
+      }
+    </script>
+  </body>
+</html>

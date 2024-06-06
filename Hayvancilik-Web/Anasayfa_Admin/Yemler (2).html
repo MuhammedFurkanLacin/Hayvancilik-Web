@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Yemler Tablosu</title>
+  <link rel="stylesheet" href="Yemler.css" />
+  <style>
+    .message-box {
+      display: none;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .message-box.success {
+      background-color: #dff0d8;
+      border-color: #d6e9c6;
+      color: #3c763d;
+    }
+    .message-box.error {
+      background-color: #f2dede;
+      border-color: #ebccd1;
+      color: #a94442;
+    }
+  </style>
+</head>
+<body>
+  <h2>Yem Tablosu</h2>
+
+  <!-- İletişim Kutusu -->
+  <div id="messageBox" class="message-box"></div>
+
+  <div class="form-container">
+    <input type="text" id="yemAdı" placeholder="Yem Adı" />
+    <input type="text" id="miktar" placeholder="Miktar" />
+    <input type="text" id="birim" placeholder="Birim" />
+    <input type="date" id="sonGüncellenmeTarihi" placeholder="Son Güncellenme Tarihi" />
+    <button class="button add-button" onclick="satirEkle()">Satır Ekle</button>
+  </div>
+
+  <table id="dynamicTable">
+    <thead>
+      <tr>
+        <th>Yem Adı</th>
+        <th>Miktar</th>
+        <th>Birim</th>
+        <th>Son Güncellenme Tarihi</th>
+        <th>İşlemler</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      tabloVerileriniYukle();
+    });
+
+    function tabloVerileriniYukle() {
+      const tabloVerileri =
+        JSON.parse(localStorage.getItem("yemTabloVerileri")) || [];
+      const tbody = document
+        .getElementById("dynamicTable")
+        .getElementsByTagName("tbody")[0];
+
+      tabloVerileri.forEach((satirVerisi) => {
+        const yeniSatir = tbody.insertRow();
+        yeniSatir.insertCell(0).textContent = satirVerisi.yemAdı;
+        yeniSatir.insertCell(1).textContent = satirVerisi.miktar;
+        yeniSatir.insertCell(2).textContent = satirVerisi.birim;
+        yeniSatir.insertCell(3).textContent = satirVerisi.sonGüncellenmeTarihi;
+        yeniSatir.insertCell(4).innerHTML = `
+          <button class="button remove-button" onclick="satirSil(this)">Sil</button>
+          <button class="button edit-button" onclick="satirDuzenle(this)">Düzenle</button>`;
+      });
+    }
+
+    function tabloVerileriniKaydet() {
+      const tbody = document
+        .getElementById("dynamicTable")
+        .getElementsByTagName("tbody")[0];
+      const satirlar = Array.from(tbody.rows);
+      const tabloVerileri = satirlar.map((satir) => {
+        return {
+          yemAdı: satir.cells[0].textContent,
+          miktar: satir.cells[1].textContent,
+          birim: satir.cells[2].textContent,
+          sonGüncellenmeTarihi: satir.cells[3].textContent,
+        };
+      });
+      localStorage.setItem("yemTabloVerileri", JSON.stringify(tabloVerileri));
+    }
+
+    function showMessage(message, type) {
+      const messageBox = document.getElementById("messageBox");
+      messageBox.textContent = message;
+      messageBox.className = `message-box ${type}`;
+      messageBox.style.display = "block";
+      setTimeout(() => {
+        messageBox.style.display = "none";
+      }, 3000);
+    }
+
+    function satirEkle() {
+      const yemAdıInput = document.getElementById("yemAdı");
+      const miktarInput = document.getElementById("miktar");
+      const birimInput = document.getElementById("birim");
+      const sonGüncellenmeTarihiInput = document.getElementById("sonGüncellenmeTarihi");
+
+      const yemAdı = yemAdıInput.value.trim();
+      const miktar = miktarInput.value.trim();
+      const birim = birimInput.value.trim();
+      const sonGüncellenmeTarihi = sonGüncellenmeTarihiInput.value.trim();
+
+      if (yemAdı === "" || miktar === "" || birim === "" || sonGüncellenmeTarihi === "") {
+        showMessage("Lütfen tüm alanları doldurun.", "error");
+        return;
+      }
+
+      const specialChars = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
+      if (specialChars.test(yemAdı) || specialChars.test(miktar) || specialChars.test(birim)) {
+        showMessage("Özel karakterler veya semboller kullanmayınız.", "error");
+        return;
+      }
+
+      const tablo = document.getElementById("dynamicTable").getElementsByTagName("tbody")[0];
+      const yeniSatir = tablo.insertRow();
+
+      yeniSatir.insertCell(0).textContent = yemAdı;
+      yeniSatir.insertCell(1).textContent = miktar;
+      yeniSatir.insertCell(2).textContent = birim;
+      yeniSatir.insertCell(3).textContent = sonGüncellenmeTarihi;
+      yeniSatir.insertCell(4).innerHTML = `
+        <button class="button remove-button" onclick="satirSil(this)">Sil</button>
+        <button class="button edit-button" onclick="satirDuzenle(this)">Düzenle</button>`;
+
+      yemAdıInput.value = "";
+      miktarInput.value = "";
+      birimInput.value = "";
+      sonGüncellenmeTarihiInput.value = "";
+
+      tabloVerileriniKaydet();
+      showMessage("Satır başarıyla eklendi!", "success");
+    }
+
+    function satirSil(buton) {
+      if (confirm("Bu satırı silmek istediğinizden emin misiniz?")) {
+        const satir = buton.parentNode.parentNode;
+        satir.parentNode.removeChild(satir);
+        tabloVerileriniKaydet();
+       
+        showMessage("Satır başarıyla silindi!", "success");
+      }
+    }
+
+    function satirDuzenle(buton) {
+      const satir = buton.parentNode.parentNode;
+      const cells = satir.cells;
+      for (let i = 0; i < cells.length - 1; i++) {
+        const currentText = cells[i].textContent;
+        cells[i].innerHTML = `<input type="text" value="${currentText}" />`;
+      }
+      buton.textContent = "Kaydet";
+      buton.onclick = function () {
+        satirGuncelle(buton);
+      };
+    }
+
+    function satirGuncelle(buton) {
+      const satir = buton.parentNode.parentNode;
+      const cells = satir.cells;
+      for (let i = 0; i < cells.length - 1; i++) {
+        const input = cells[i].querySelector("input");
+        cells[i].textContent = input.value.trim();
+      }
+      buton.textContent = "Düzenle";
+      buton.onclick = function () {
+        satirDuzenle(buton);
+      };
+      tabloVerileriniKaydet();
+      showMessage("Satır başarıyla güncellendi!", "success");
+    }
+  </script>
+</body>
+</html>

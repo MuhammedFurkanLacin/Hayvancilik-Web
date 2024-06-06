@@ -1,0 +1,43 @@
+body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  background-color: #f1f4f1;
+  color: #333;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+}
+th {
+  background-color: #f4f4f4;
+}
+.button {
+  padding: 5px 10px;
+  margin: 5px;
+  cursor: pointer;
+}
+.add-button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+}
+.remove-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+}
+.form-container {
+  margin-bottom: 20px;
+}
+.form-container input {
+  padding: 5px;
+  margin-right: 10px;
+}

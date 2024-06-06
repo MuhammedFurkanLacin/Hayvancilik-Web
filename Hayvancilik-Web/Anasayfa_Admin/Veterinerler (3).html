@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Veteriner Tablosu</title>
+  <link rel="stylesheet" href="Veterinerler.css" />
+  <style>
+    .message-box {
+      display: none;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .message-box.success {
+      background-color: #dff0d8;
+      border-color: #d6e9c6;
+      color: #3c763d;
+    }
+    .message-box.error {
+      background-color: #f2dede;
+      border-color: #ebccd1;
+      color: #a94442;
+    }
+  </style>
+</head>
+<body>
+  <h2>Veteriner Tablosu</h2>
+
+  <!-- İletişim Kutusu -->
+  <div id="messageBox" class="message-box"></div>
+
+  <div class="form-container">
+    <input type="text" id="Ad" placeholder="Ad" />
+    <input type="text" id="Soyad" placeholder="Soyad" />
+    <input type="text" id="UzmanlikAlani" placeholder="Uzmanlık Alanı" />
+    <input type="text" id="Telefon" placeholder="Telefon" />
+    <button class="button add-button" onclick="satirEkle()">Satır Ekle</button>
+  </div>
+
+  <table id="dynamicTable">
+    <thead>
+      <tr>
+        <th>Ad</th>
+        <th>Soyad</th>
+        <th>Uzmanlık Alanı</th>
+        <th>Telefon</th>
+        <th>İşlemler</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    // Sayfa yüklendiğinde tablo verilerini yükle
+    document.addEventListener("DOMContentLoaded", () => {
+      tabloVerileriniYukle();
+    });
+
+    // Tablo verilerini yerel depolamaya kaydet
+    function tabloVerileriniKaydet(tabloVerileri) {
+      localStorage.setItem("veterinerTabloVerileri", JSON.stringify(tabloVerileri));
+    }
+
+    // Tablo verilerini yerel depodan yükle ve tabloya ekle
+    function tabloVerileriniYukle() {
+      const tabloVerileri = JSON.parse(localStorage.getItem("veterinerTabloVerileri")) || [];
+      const tbody = document.getElementById("dynamicTable").getElementsByTagName("tbody")[0];
+
+      tabloVerileri.forEach((satirVerisi) => {
+        const yeniSatir = tbody.insertRow();
+        yeniSatir.insertCell(0).textContent = satirVerisi.Ad;
+        yeniSatir.insertCell(1).textContent = satirVerisi.Soyad;
+        yeniSatir.insertCell(2).textContent = satirVerisi.UzmanlikAlani;
+        yeniSatir.insertCell(3).textContent = satirVerisi.Telefon;
+        yeniSatir.insertCell(4).innerHTML = `
+          <button class="button edit-button" onclick="satiriDuzenle(this)">Düzenle</button>
+          <button class="button remove-button" onclick="satirSil(this)">Sil</button>
+        `;
+      });
+    }
+
+    // Yeni bir satır ekle
+    function satirEkle() {
+      const AdInput = document.getElementById("Ad");
+      const SoyadInput = document.getElementById("Soyad");
+      const UzmanlikAlaniInput = document.getElementById("UzmanlikAlani");
+      const TelefonInput = document.getElementById("Telefon");
+
+      const Ad = AdInput.value.trim();
+      const Soyad = SoyadInput.value.trim();
+      const UzmanlikAlani = UzmanlikAlaniInput.value.trim();
+      const Telefon = TelefonInput.value.trim();
+
+      // Özel karakter kontrolü
+      const regex = /^[a-zA-ZğüşöçĞÜŞİÖÇ\s]*$/;
+      if (!regex.test(Ad) || !regex.test(Soyad) || !regex.test(UzmanlikAlani)) {
+        showMessage("Ad, Soyad ve Uzmanlık Alanı alanları yalnızca harf ve boşluk içerebilir.", "error");
+        return;
+      }
+
+      if (Ad === "" || Soyad === "" || UzmanlikAlani === "" || Telefon === "") {
+        showMessage("Lütfen tüm alanları doldurun.", "error");
+        return;
+      }
+
+      const tablo = document.getElementById("dynamicTable").getElementsByTagName("tbody")[0];
+      const yeniSatir = tablo.insertRow();
+
+      yeniSatir.insertCell(0).textContent = Ad;
+      yeniSatir.insertCell(1).textContent = Soyad;
+      yeniSatir.insertCell(2).textContent = UzmanlikAlani;
+      yeniSatir.insertCell(3).textContent = Telefon;
+      yeniSatir.insertCell(4).innerHTML = `
+        <button class="button edit-button" onclick="satiriDuzenle(this)">Düzenle</button>
+        <button class="button remove-button" onclick="satirSil(this)">Sil</button>
+      `;
+
+      // Yeni satır eklendikten sonra tablo verilerini güncelle ve kaydet
+      const tabloVerileri = Array.from(tablo.rows).map((row) => ({
+        Ad: row.cells[0].textContent,
+        Soyad: row.cells[1].textContent,
+        UzmanlikAlani: row.cells[2].textContent,
+        Telefon: row.cells[3].textContent,
+      }));
+      tabloVerileriniKaydet(tabloVerileri);
+
+      // Giriş alanlarını temizle
+      AdInput.value = "";
+      SoyadInput.value = "";
+      UzmanlikAlaniInput.value = "";
+      TelefonInput.value = "";
+
+      showMessage("Satır başarıyla eklendi!", "success");
+    }
+
+    // Satırı sil
+    function satirSil(buton) {
+      const satir = buton.parentNode.parentNode;
+      satir.parentNode.removeChild(satir);
+
+      // Satır silindikten sonra tablo verilerini güncelle ve kaydet
+      const tablo = document.getElementById("dynamicTable").getElementsByTagName("tbody")[0];
+      const tabloVerileri = Array.from(tablo.rows).map((row) => ({
+        Ad: row.cells[0].textContent,
+        Soyad: row.cells[1].textContent,
+        UzmanlikAlani: row.cells[2].textContent,
+        Telefon: row.cells[3].textContent,
+      }));
+      tabloVerileriniKaydet(tabloVerileri);
+
+      showMessage("Satır başarıyla silindi!", "success");
+    }
+
+    // Satırı düzenle
+    function satiriDuzenle(buton) {
+      const satir = buton.parentNode.parentNode;
+      const Ad = satir.cells[0].textContent;
+      const Soyad = satir.cells[1].textContent;
+      const UzmanlikAlani = satir.cells[2].textContent;
+      const Telefon = satir.cells[3].textContent;
+
+      // Giriş alanlarını doldur
+      document.getElementById("Ad").value = Ad;
+      document.getElementById("Soyad").value = Soyad;
+      document.getElementById("UzmanlikAlani").value = UzmanlikAlani;
+      document.getElementById("Telefon").value = Telefon;
+
+      // Düzenle butonunu güncelle
+      const ekleButton = document.querySelector(".add-button");
+      ekleButton.textContent = "Güncelle";
+      ekleButton.onclick = function () {
+        // Güncelleme işlemi
+        // Önce eski satırı silelim
+        satir.parentNode.removeChild(satir);
+        // Yeni satır ekleme fonksiyonunu çağıralım
+        satirEkle();
+        // Ekle butonunu tekrar eski haline getirelim
+        ekleButton.textContent = "Satır Ekle";
+        ekleButton.onclick = satirEkle;
+      };
+    }
+
+    // Bildirim gösterme fonksiyonu
+    function showMessage(message, type) {
+      const messageBox = document.getElementById("messageBox");
+      messageBox.textContent = message;
+      messageBox.className = `message-box ${type}`;
+      messageBox.style.display = "block";
+      setTimeout(() => {
+        messageBox.style.display = "none";
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
